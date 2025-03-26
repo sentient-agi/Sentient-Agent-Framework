@@ -38,7 +38,7 @@
 <h1 align="center">SentientChat-Agent</h1>
 
 > [!WARNING]
-> **This package is currently in beta and could change.**
+> **This package is currently in beta and could change. It is not yet ready for production use. It is available for testing purposes on TestPyPI, but it is not yet available on PyPI.**
 
 In addition to supporting OpenAI API compatible agents, SentientChat supports a custom, open source event system for agent responses. These events can be rendered in SentientChat to provide a richer user experience. This particularly useful for streaming responses from an AI agent, when you might want to show the agent's work while the response is being generated, rather than having the user wait for the final response.
 
@@ -46,7 +46,7 @@ In addition to supporting OpenAI API compatible agents, SentientChat supports a 
 ## Usage
 #### Installation
 ```bash
-pip install sentientchat-agent
+pip install -i https://test.pypi.org/simple/ sentientchat-agent
 ```
 
 #### Initializing a ResponseHandler
