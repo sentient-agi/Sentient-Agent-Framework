@@ -25,35 +25,37 @@
 <!-- Github Repo Info -->
 <p align="center">
     <!-- Release -->
-    <a href="https://github.com/sentient-xyz/SentientChat-Agent/releases">
+    <a href="https://github.com/sentient-agi/Sentient-Agent-Framework/releases">
         <img alt="GitHub release" src="https://img.shields.io/badge/Release-Beta-yellow">
     </a>
     <!-- License -->
-    <a href="https://github.com/sentient-xyz/SentientChat-Agent/tree/main?tab=Apache-2.0-1-ov-file">
+    <a href="https://github.com/sentient-agi/Sentient-Agent-Framework/tree/main?tab=Apache-2.0-1-ov-file">
         <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-green">
     </a>
 </p>
 
 
-<h1 align="center">SentientChat-Agent</h1>
+<h1 align="center">Sentient Agent Framework</h1>
 
 > [!WARNING]
-> **This package is currently in beta and could change. It is not yet ready for production use. It is available for testing purposes on TestPyPI, but it is not yet available on PyPI.**
+> **This python package is currently in beta and will likely change. It is not yet ready for production use. It is available for testing purposes on [TestPyPI](https://test.pypi.org/project/sentient-agent-framework/0.0.1/), but it is not yet available on PyPI.**
 
-In addition to supporting OpenAI API compatible agents, SentientChat supports a custom, open source event system for agent responses. These events can be rendered in SentientChat to provide a richer user experience. This particularly useful for streaming responses from an AI agent, when you might want to show the agent's work while the response is being generated, rather than having the user wait for the final response.
+In addition to supporting OpenAI API compatible agents, Sentient Chat supports a custom, open source event system for agent responses. These events can be rendered in Sentient Chat to provide a richer user experience. This particularly useful for streaming responses from an AI agent, when you might want to show the agent's work while the response is being generated, rather than having the user wait for the final response. **This python package provides an agent framework that can be used to build agents that serve Sentient Chat events.**
+
+Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples).
 
 
 ## Usage
 #### Installation
 ```bash
-pip install -i https://test.pypi.org/simple/ sentientchat-agent
+pip install -i https://test.pypi.org/simple/ sentient-agent-framework
 ```
 
 #### Initializing a ResponseHandler
 A `ResponseHandler` is initialized with an agent's `Identity` and a `Hook`. A new `ResponseHandler` is created for every agent query:
 
 ```python
-from sentientchat-agent import ResponseHandler, Identity, DefaultHook
+from sentient-agent-framework import ResponseHandler, Identity, DefaultHook
 
 response_handler = DefaultResponseHandler(self._identity, DefaultHook(self._response_queue))
 ```

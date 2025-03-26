@@ -5,8 +5,8 @@ from typing import (
     Protocol,
     Union,
 )
-from src.sentientchat_agent.interface.events import DEFAULT_ERROR_CODE
-from src.sentientchat_agent.interface.stream_event_emitter import StreamEventEmitter
+from src.sentient_agent_framework.interface.events import DEFAULT_ERROR_CODE
+from src.sentient_agent_framework.interface.stream_event_emitter import StreamEventEmitter
 
 
 class ResponseHandler(Protocol):

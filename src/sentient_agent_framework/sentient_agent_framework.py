@@ -1,8 +1,8 @@
 import asyncio
 from queue import Queue
-from src.sentientchat_agent.implementation.default_hook import DefaultHook
-from src.sentientchat_agent.implementation.default_response_handler import DefaultResponseHandler
-from src.sentientchat_agent.interface.identity import Identity
+from src.sentient_agent_framework.implementation.default_hook import DefaultHook
+from src.sentient_agent_framework.implementation.default_response_handler import DefaultResponseHandler
+from src.sentient_agent_framework.interface.identity import Identity
 
 
 __all__ = [
