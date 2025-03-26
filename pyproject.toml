@@ -14,12 +14,12 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sentientchat-agent"
+name = "sentient-agent-framework"
 version = "0.0.1"
 authors = [
   { name="Chris Aubin", email="christopher@sentient.xyz" },
 ]
-description = "This python package can be used to build agents that serve SentientChat events."
+description = "This python package provides an agent framework that can be used to build agents that serve Sentient Chat events."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -29,6 +29,6 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/sentient-xyz/SentientChat-Agent"
-Issues = "https://github.com/sentient-xyz/SentientChat-Agent/issues"
+Homepage = "https://github.com/sentient-agi/Sentient-Agent-Framework"
+Issues = "https://github.com/sentient-agi/Sentient-Agent-Framework/issues"
 Website = "https://sentient.xyz"
