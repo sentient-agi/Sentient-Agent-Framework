@@ -38,7 +38,7 @@
 <h1 align="center">Sentient Agent Framework</h1>
 
 > [!WARNING]
-> **This python package is currently in beta and will likely change. It is not yet ready for production use. It is available for testing purposes on [TestPyPI](https://test.pypi.org/project/sentient-agent-framework/0.0.1/), but it is not yet available on PyPI.**
+> **This python package is currently in beta and will likely change. It is not yet ready for production use. It is available for testing purposes on [TestPyPI](https://test.pypi.org/project/sentient-agent-framework), but it is not yet available on PyPI.**
 
 In addition to supporting OpenAI API compatible agents, Sentient Chat supports a custom, open source event system for agent responses. These events can be rendered in Sentient Chat to provide a richer user experience. This particularly useful for streaming responses from an AI agent, when you might want to show the agent's work while the response is being generated, rather than having the user wait for the final response. **This python package provides an agent framework that can be used to build agents that serve Sentient Chat events.**
 
@@ -55,7 +55,7 @@ pip install -i https://test.pypi.org/simple/ sentient-agent-framework
 A `ResponseHandler` is initialized with an agent's `Identity` and a `Hook`. A new `ResponseHandler` is created for every agent query:
 
 ```python
-from sentient-agent-framework import ResponseHandler, Identity, DefaultHook
+from sentient_agent_framework import DefaultHook, DefaultResponseHandler, Identity
 
 response_handler = DefaultResponseHandler(self._identity, DefaultHook(self._response_queue))
 ```
