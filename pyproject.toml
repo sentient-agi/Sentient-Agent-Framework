@@ -16,10 +16,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sentient-agent-framework"
 description = "This python package provides an agent framework that can be used to build agents that serve Sentient Chat events."
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.9"
 readme = "README.md"
-license = { file = "LICENSE.txt" }
+license = "Apache-2.0"
 authors = [
   { name="Chris Aubin", email="christopher@sentient.xyz" },
 ]
@@ -30,8 +30,6 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3.9",
-  "Operating System :: OS Independent",
-  "License :: OSI Approved :: Apache Software License",
 ]
 
 [project.urls]

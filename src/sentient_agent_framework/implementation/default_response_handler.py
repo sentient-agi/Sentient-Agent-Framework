@@ -3,11 +3,11 @@ import inspect
 import json
 from cuid2 import Cuid
 from functools import wraps
-from src.sentient_agent_framework.interface.exceptions import (
+from sentient_agent_framework.interface.exceptions import (
     AgentError,
     ResponseStreamClosedError
 )
-from src.sentient_agent_framework.interface.events import (
+from sentient_agent_framework.interface.events import (
     DocumentEvent,
     DoneEvent,
     ErrorContent,
@@ -16,10 +16,10 @@ from src.sentient_agent_framework.interface.events import (
     TextBlockEvent,
     DEFAULT_ERROR_CODE
 )
-from src.sentient_agent_framework.interface.hook import Hook
-from src.sentient_agent_framework.interface.identity import Identity
-from src.sentient_agent_framework.interface.stream_event_emitter import StreamEventEmitter
-from src.sentient_agent_framework.implementation.default_text_stream import DefaultTextStream
+from sentient_agent_framework.interface.hook import Hook
+from sentient_agent_framework.interface.identity import Identity
+from sentient_agent_framework.interface.stream_event_emitter import StreamEventEmitter
+from sentient_agent_framework.implementation.default_text_stream import DefaultTextStream
 from typing import (
     Any,
     Callable,
