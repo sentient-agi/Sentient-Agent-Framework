@@ -354,6 +354,6 @@ At the end of the stream, `final_response_stream.complete()` is called to signal
 await final_response_stream.complete()
 ```
 
-## Documentation
+# Documentation
 - [Interface Documentation](./src/sentient_agent_framework/interface/README.md)
 - [Implementation Documentation](./src/sentient_agent_framework/implementation/README.md)
