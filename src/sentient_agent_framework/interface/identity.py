@@ -7,8 +7,10 @@ from pydantic import (
 class Identity(BaseModel):
     """
     Uniquely identifies an entity.
+    
     Id is internal to the system whereas name is external to the system.
     """
+    
     id: str = Field(
         description="Uniquely identifies an entity."
     )
