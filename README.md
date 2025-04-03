@@ -44,29 +44,25 @@ In addition to supporting OpenAI API compatible agents, Sentient Chat supports a
 
 Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples).
 
+# Usage
+The simplest ways to use this framework are to either import and use the `DefaultAgent` class or the `DefaultResponseHandler` class.
+
+| DefaultAgent | DefaultResponseHandler |
+|---------------------|--------------------------------|
+| Provides SSE server with `/assist` endpoint | You manage your own server implementation |
+| Emitted events are automatically streamed to client | Emitted events are added to a queue - you handle streaming events to client |
+| Implement `assist()` method and emit events | Implement server that streams events from queue, use `DefaultResponseHandler` to add events to queue |
+| Best for simple agent implementations | Better for custom server architectures |
+
 ## Installation
 ```bash
 pip install sentient-agent-framework
 ```
 
-## Usage
-The simplest ways to use this framework are to either import and use the `DefaultAgent` class or the `DefaultResponseHandler` class.
+## Using DefaultAgent
+Subclass the `DefaultAgent` class and implement the `assist()` method. Use the `ResponseHandler` object passed to the `assist()` method to emit events to the client:
 
-When using the `DefaultAgent` class, an SSE server with an `/assist` endpoint is created to stream events to the client. When that endpoint is called the agent's `assist()` method is called with the request and the response handler. Within the `assist()` method, events emitted using the `ResponseHandler` are automatically sent to the client using the SSE server.
-
-When using the `DefaultResponseHandler` class, the agent builder is reponsible for creating an SSE server and emitting any events added to the response queue to the client.
-
-| Using `DefaultAgent` | Using `DefaultResponseHandler` |
-|---------------------|--------------------------------|
-| Provides built-in SSE server with `/assist` endpoint | You manage your own server implementation |
-| Automatically handles event streaming to client | You handle sending events to client |
-| Just implement `assist()` method and run server | More flexible but requires more setup |
-| Best for simple agent implementations | Better for custom server architectures |
-
-### Using the `DefaultAgent`
-To import and use the `DefaultAgent` class subclass the `DefaultAgent` class and implement the `assist()` method. The `assist()` method takes in a `ResponseHandler` object, which is used to emit events to the client:
-
-#### `search_agent.py`
+#### search_agent.py
 ```python
 import logging
 import os
@@ -171,8 +167,8 @@ if __name__ == "__main__":
 ```
 
 
-### Using the `DefaultResponseHandler`
-#### `search_agent.py`
+## Using DefaultResponseHandler
+#### search_agent.py
 ```python
 import logging
 import os
@@ -270,7 +266,7 @@ class SearchAgent:
             yield chunk
 ```
 
-#### `flask_server.py`
+#### flask_server.py
 ```python
 import asyncio
 import threading
@@ -309,7 +305,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-### Emitting events with a `ResponseHandler`
+## Emitting events
 Whether using the `DefaultAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
 
 #### Emitting text events

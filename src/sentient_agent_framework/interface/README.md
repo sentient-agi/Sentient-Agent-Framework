@@ -1,6 +1,5 @@
-# Interface
 ## Architecture
-#### Agent Abstract Base Class
+#### AbstractAgent
 The `AbstractAgent` class is an abstract base class that defines the specification for an agent. It is not intended to be used directly, but rather to be subclassed by concrete agents that implement the `assist()` method. It, along with all of the interfaces that it depends on, are defined but not implemented in the `interface` module.
 
 ```mermaid
@@ -56,8 +55,8 @@ classDiagram
     Hook --> Event : emits
 ```
 
-#### Request Interface
-The `Request` interface defines the specification for HTTP requests to an agent (requests would be sent by Sentient Chat - agent developers are not responsible for building and sending these requests).
+#### Request
+The `Request` interface defines the specification for HTTP requests to an agent (requests are sent to the agent's `/assist` endpoint by Sentient Chat - agent developers are not responsible for building these requests).
 
 ```mermaid
 classDiagram    
@@ -88,7 +87,7 @@ classDiagram
     SessionObject *-- Interaction : contains list
 ```
 
-#### Session Interface
+#### Session
 The `Session` interface defines the specification for a Sentient Chat session between a user and an agent. 
 
 ```mermaid
@@ -146,29 +145,29 @@ classDiagram
 
 ## Key Components
 #### AbstractAgent
-- Abstract class that must be subclasses by concrete agents that implement the `assist()` method
-- Uses `ResponseHandler` to emit responses
-- Processes `Request` objects
+- Abstract class to be subclassed by concrete agents that implement the `assist()` method
+- Uses `ResponseHandler` to emit Sentient Chat events
+- Processes Sentient Chat`Request` objects
 - Key methods:
-    - `assist()`: Process `Request` objects and emit responses
+    - `assist()`: Processes Sentient Chat `Request` object and emits events
 
 #### ResponseHandler
-- Protocol (interface) for handling different types of responses
-- Emits `Event` objects to the client using a `Hook`
+- Protocol (interface) for emitting Sentient Chat events using a `Hook`
 - Key methods:
-    - `respond()`: Sends complete responses
-    - `emit_json()`: Sends JSON events
-    - `emit_text_block()`: Sends text blocks
-    - `create_text_stream()`: Creates text streams
-    - `emit_error()`: Sends error events
-    - `complete()`: Marks response as complete
+    - `respond()`: Emits complete responses
+    - `emit_json()`: Emits DocumentEvent
+    - `emit_text_block()`: Emits TextBlockEvent
+    - `create_text_stream()`: Creates text stream to emit TextChunkEvents
+    - `emit_error()`: Emits ErrorEvent
+    - `complete()`: Marks response as complete (emits DoneEvent)
 
 #### Hook
-- Interface for emitting events to external systems
+- Protocol (interface) for emitting events to external systems
 - Key methods:
     - `emit()`: Emits an event
 
 #### Events
+- Classes for different types of events that can be emitted by an agent and rendered by Sentient Chat frontend
 ```
 Event (base class)
 └── BaseEvent
@@ -180,14 +179,15 @@ Event (base class)
     └── StreamEvent
         └── TextChunkEvent (streaming text)
 ```
-- `DocumentEvent`: JSON content
-- `TextBlockEvent`: Complete text blocks
-- `TextChunkEvent`: Streaming text chunks
-- `ErrorEvent`: Error messages
-- `DoneEvent`: Completion markers
+- `DocumentEvent`: Used for JSON content
+- `TextBlockEvent`: Used for complete text blocks
+- `TextChunkEvent`: Used for streaming text chunks
+- `ErrorEvent`: Used for error messages
+- `DoneEvent`: Used for completion markers
 
 #### Session
-- Provides context for agent interactions
+- Class for Sentient Chat session
+- Contains past interactions
 - Key methods:
     - `processor_id`: (Getter) Identifies the processor
     - `activity_id`: (Getter) Identifies the activity (e.g., chat)

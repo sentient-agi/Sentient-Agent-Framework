@@ -1,4 +1,3 @@
-# Implementation
 ## Architecture
 ```mermaid
 classDiagram    
@@ -73,7 +72,7 @@ classDiagram
 
 
 ## Operation Flow 
-#### Request Handling:
+#### Request Handling
 ```mermaid
 sequenceDiagram
     Client->>DefaultServer: HTTP Request
@@ -84,7 +83,7 @@ sequenceDiagram
     DefaultServer->>Client: Serves events in response queue via SSE
 ```
 
-#### Event Processing:
+#### Event Processing
 ```mermaid
 sequenceDiagram
     BaseAgent->>DefaultResponseHandler: Creates response event, calls one of DefaultResponseHandler's emit methods
