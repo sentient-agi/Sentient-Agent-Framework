@@ -25,7 +25,7 @@ class DefaultServer():
 
         # Create Flask app
         self._app = Flask(__name__)
-        self._app.route('/assist')(self.assist_endpoint)
+        self._app.route('/assist', methods=['POST'])(self.assist_endpoint)
 
 
     def run(self, debug=True):
