@@ -55,6 +55,7 @@ class DefaultServer():
         # Stream the response handler events
         while True:
             event = self._agent.response_queue.get()
+            yield f"event: {event.event_name}\n"
             yield f"data: {event}\n\n"
             if type(event) == DoneEvent:
                 break
