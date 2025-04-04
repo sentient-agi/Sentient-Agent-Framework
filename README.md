@@ -45,9 +45,9 @@ In addition to supporting OpenAI API compatible agents, Sentient Chat supports a
 Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples).
 
 # Usage
-The simplest ways to use this framework are to either import and use the `DefaultAgent` class or the `DefaultResponseHandler` class.
+The simplest ways to use this framework are to either import and use the `BaseAgent` class or the `DefaultResponseHandler` class.
 
-| DefaultAgent | DefaultResponseHandler |
+| BaseAgent | DefaultResponseHandler |
 |---------------------|--------------------------------|
 | Provides SSE server with `/assist` endpoint | You manage your own server implementation |
 | Emitted events are automatically streamed to client | Emitted events are added to a queue - you handle streaming events to client |
@@ -59,8 +59,8 @@ The simplest ways to use this framework are to either import and use the `Defaul
 pip install sentient-agent-framework
 ```
 
-## Using DefaultAgent
-Subclass the `DefaultAgent` class and implement the `assist()` method. Use the `ResponseHandler` object passed to the `assist()` method to emit events to the client:
+## Using BaseAgent
+Subclass the `BaseAgent` class and implement the `assist()` method. Use the `ResponseHandler` object passed to the `assist()` method to emit events to the client:
 
 #### search_agent.py
 ```python
@@ -306,7 +306,7 @@ if __name__ == '__main__':
 ```
 
 ## Emitting events
-Whether using the `DefaultAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
+Whether using the `BaseAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
 
 #### Emitting text events
 Text events are used to send single, complete messages to the client:
