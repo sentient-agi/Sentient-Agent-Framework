@@ -6,7 +6,7 @@ The `AbstractAgent` class is an abstract base class that defines the specificati
 classDiagram
     class AbstractAgent {
         <<abstract>>
-        +Identity identity
+        +str name
         +assist(Session, Query, ResponseHandler)
     }
     

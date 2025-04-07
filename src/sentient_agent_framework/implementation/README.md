@@ -2,6 +2,7 @@
 ```mermaid
 classDiagram
     class AbstractAgent {
+        -str name
         +assist(Session, Query, ResponseHandler)
     }
 
