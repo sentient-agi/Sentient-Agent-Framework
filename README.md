@@ -44,25 +44,21 @@ In addition to supporting OpenAI API compatible agents, Sentient Chat supports a
 
 Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples).
 
-# Usage
-The simplest ways to use this framework are to either import and use the `BaseAgent` class or the `DefaultResponseHandler` class.
-
-| BaseAgent | DefaultResponseHandler |
-|---------------------|--------------------------------|
-| Provides SSE server with `/assist` endpoint | You manage your own server implementation |
-| Emitted events are automatically streamed to client | Emitted events are added to a queue - you handle streaming events to client |
-| Implement `assist()` method and emit events | Implement server that streams events from queue, use `DefaultResponseHandler` to add events to queue |
-| Best for simple agent implementations | Better for custom server architectures |
-
 ## Installation
 ```bash
 pip install sentient-agent-framework
 ```
 
-## Using BaseAgent
-Subclass the `BaseAgent` class and implement the `assist()` method. Use the `ResponseHandler` object passed to the `assist()` method to emit events to the client:
+## Usage
+The simplest way to use this framework is to import and use the `AbstractAgent` class and the `DefaultServer` class.
 
-#### search_agent.py
+#### AbstractAgent
+The `AbstractAgent` class is lightweight and extensible. To use it, simply subclass the class and implement the `assist()` method. Use the `ResponseHandler` object passed to the `assist()` method to emit events to the client.
+
+#### DefaultServer
+The `DefaultServer` class is designed to be used with the `AbstractAgent` class. A concrete implementation of the `AbstractAgent` class is passed into the `DefaultServer` constructor. The `DefaultServer` provides SSE server with `/assist` endpoint and automatically streams events emitted in the `assist()` method to the client.
+
+#### Example
 ```python
 import logging
 import os
@@ -70,7 +66,8 @@ from dotenv import load_dotenv
 from src.search_agent.providers.model_provider import ModelProvider
 from src.search_agent.providers.search_provider import SearchProvider
 from sentient_agent_framework import (
-    BaseAgent,
+    AbstractAgent,
+    DefaultServer,
     Identity,
     Session,
     Query,
@@ -83,7 +80,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class SearchAgent(BaseAgent):
+class SearchAgent(AbstractAgent):
     def __init__(
             self,
             identity: Identity
@@ -101,6 +98,7 @@ class SearchAgent(BaseAgent):
         self._search_provider = SearchProvider(api_key=search_api_key)
 
 
+    # Implement the assist method as required by the AbstractAgent class
     async def assist(
             self,
             session: Session,
@@ -113,6 +111,7 @@ class SearchAgent(BaseAgent):
             "PLAN", "Rephrasing user query..."
         )
         rephrased_query = self.__rephrase_query(query)
+        # Use response handler to emit text blocks to the client
         await response_handler.emit_text_block(
             "REPHRASE", f"Rephrased query: {rephrased_query}"
         )
@@ -123,21 +122,28 @@ class SearchAgent(BaseAgent):
         )
         search_results = self._search_provider.search(rephrased_query)
         if len(search_results["results"]) > 0:
+            # Use response handler to emit JSON to the client
             await response_handler.emit_json(
                 "SOURCES", {"results": search_results["results"]}
             )
         if len(search_results["images"]) > 0:
+            # Use response handler to emit JSON to the client
             await response_handler.emit_json(
                 "IMAGES", {"images": search_results["images"]}
             )
 
         # Process search results
+        # Use response handler to create a text stream to stream the final 
+        # response to the client
         final_response_stream = response_handler.create_text_stream(
             "FINAL_RESPONSE"
             )
         for chunk in self.__process_search_results(search_results["results"]):
+            # Use the text stream to emit chunks of the final response to the client
             await final_response_stream.emit_chunk(chunk)
+        # Mark the text stream as complete
         await final_response_stream.complete()
+        # Mark the response as complete
         await response_handler.complete()
 
 
@@ -162,151 +168,18 @@ class SearchAgent(BaseAgent):
 
 
 if __name__ == "__main__":
+    # Create an instance of a SearchAgent
     agent = SearchAgent(identity=Identity(id="Search-Demo", name="Search Demo"))
-    agent.run_server()
+    # Create a server to handle requests to the agent
+    server = DefaultServer(agent)
+    # Run the server
+    server.run()
 ```
-
-
-## Using DefaultResponseHandler
-#### search_agent.py
-```python
-import logging
-import os
-from dotenv import load_dotenv
-from queue import Queue
-from src.agent.providers.model_provider import ModelProvider
-from src.agent.providers.search_provider import SearchProvider
-from sentient_agent_framework import (
-    DefaultResponseHandler,
-    DefaultHook,
-    Identity)
-from typing import Iterator
-
-
-load_dotenv()
-logger = logging.getLogger(__name__)
-
-
-class SearchAgent:
-    def __init__(
-            self,
-            identity: Identity,
-            response_queue: Queue
-    ):
-        self._identity = identity
-        self._response_queue = response_queue
-
-        model_api_key=os.getenv("MODEL_API_KEY")
-        if not model_api_key:
-            raise ValueError("MODEL_API_KEY is not set")
-        self._model_provider = ModelProvider(api_key=model_api_key)
-
-        search_api_key=os.getenv("TAVILY_API_KEY")
-        if not search_api_key:
-            raise ValueError("TAVILY_API_KEY is not set") 
-        self._search_provider = SearchProvider(api_key=search_api_key)
-
-
-    async def search(
-            self,
-            query: str
-    ):
-        response_handler = DefaultResponseHandler(self._identity, DefaultHook(self._response_queue))
-        """Search the internet for information."""
-        # Rephrase query for better search results
-        await response_handler.emit_text_block(
-            "PLAN", "Rephrasing user query..."
-        )
-        rephrased_query = self.__rephrase_query(query)
-        await response_handler.emit_text_block(
-            "REPHRASE", f"Rephrased query: {rephrased_query}"
-        )
-
-        # Search for information
-        await response_handler.emit_text_block(
-            "SEARCH", "Searching internet for results..."
-        )
-        search_results = self._search_provider.search(rephrased_query)
-        if len(search_results["results"]) > 0:
-            await response_handler.emit_json(
-                "SOURCES", {"results": search_results["results"]}
-            )
-        if len(search_results["images"]) > 0:
-            await response_handler.emit_json(
-                "IMAGES", {"images": search_results["images"]}
-            )
-
-        # Process search results
-        final_response_stream = response_handler.create_text_stream(
-            "FINAL_RESPONSE"
-            )
-        for chunk in self.__process_search_results(search_results["results"]):
-            await final_response_stream.emit_chunk(chunk)
-        await final_response_stream.complete()
-        await response_handler.complete()
-
-
-    def __rephrase_query(
-            self,
-            query: str
-    ) -> str:
-        """Rephrase the query for better search results."""
-        rephrase_query = f"Rephrase the following query for better search results: {query}"
-        rephrase_query_response = self._model_provider.query(rephrase_query)
-        return rephrase_query_response
-    
-
-    def __process_search_results(
-            self, 
-            search_results: dict
-    ) -> Iterator[str]:
-        """Process the search results."""
-        process_search_results_query = f"Summarise the following search results: {search_results}"
-        for chunk in self._model_provider.query_stream(process_search_results_query):
-            yield chunk
-```
-
-#### flask_server.py
-```python
-import asyncio
-import threading
-from flask import Flask, Response, request
-from queue import Queue
-from src.search_agent.search_agent import SearchAgent
-from sentient_agent_framework import Identity
-from sentient_agent_framework.interface.events import DoneEvent
-
-
-app = Flask(__name__)
-response_queue=Queue()
-agent = Agent(
-    identity=Identity(id="SSE-Demo", name="SSE Demo"),
-    response_queue=response_queue
-)
-
-
-def generate_data(query):
-    threading.Thread(target=lambda: asyncio.run(agent.search(query))).start()
-    while True:
-        event = response_queue.get()
-        yield f"data: {event}\n\n"
-        if type(event) == DoneEvent:
-            break
-        
-
-
-@app.route('/query')
-def stream():
-    query = request.get_json()["query"]
-    return Response(generate_data(query), content_type='text/event-stream')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-```
+> [!NOTE]  
+> The above examples comes from the [Sentient Agent Framework Examples](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples) repository.
 
 ## Emitting events
-Whether using the `BaseAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
+Whether using the `AbstractAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
 
 #### Emitting text events
 Text events are used to send single, complete messages to the client:
@@ -354,6 +227,6 @@ At the end of the stream, `final_response_stream.complete()` is called to signal
 await final_response_stream.complete()
 ```
 
-# Documentation
+## Documentation
 - [Interface Documentation](./src/sentient_agent_framework/interface/README.md)
 - [Implementation Documentation](./src/sentient_agent_framework/implementation/README.md)

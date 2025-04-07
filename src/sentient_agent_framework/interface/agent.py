@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from sentient_agent_framework.interface.identity import Identity
 from sentient_agent_framework.interface.request import Query
 from sentient_agent_framework.interface.response_handler import ResponseHandler
 from sentient_agent_framework.interface.session import Session
@@ -10,9 +9,9 @@ class AbstractAgent(ABC):
 
     def __init__(
             self,
-            identity: Identity,
+            name: str,
     ):
-        self.identity = identity
+        self.name = name
         
 
     @abstractmethod

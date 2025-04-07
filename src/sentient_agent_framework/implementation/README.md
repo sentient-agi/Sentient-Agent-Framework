@@ -1,10 +1,31 @@
 ## Architecture
 ```mermaid
-classDiagram    
-    class BaseAgent {
-        -DefaultServer _server
-        +run_server(debug)
-        +assist(Session, Query, ResponseHandler)*
+classDiagram
+    class AbstractAgent {
+        +assist(Session, Query, ResponseHandler)
+    }
+
+    class DefaultServer {
+        -AbstractAgent _agent
+        -Flask _app
+        +run(debug)
+        +assist_endpoint()
+        -__stream_agent_output(request_json)
+    }
+
+    class DefaultSession {
+        -SessionObject _session_object
+        +processor_id
+        +activity_id
+        +request_id
+        +get_interactions()
+    }
+
+    class DefaultHook {
+        -Queue _queue
+        -IdGenerator _id_generator
+        -float _timeout_secs
+        +emit(Event)
     }
     
     class DefaultResponseHandler {
@@ -35,40 +56,18 @@ classDiagram
         +is_complete()
     }
     
-    class DefaultHook {
-        -Queue _queue
-        -IdGenerator _id_generator
-        -float _timeout_secs
-        +emit(Event)
-    }
-    
-    class DefaultServer {
-        -DefaultAgent _agent
-        -Flask _app
-        +run(debug)
-        +assist_endpoint()
-        -__stream_agent_output(request_json)
-    }
-    
-    class DefaultSession {
-        -SessionObject _session_object
-        +processor_id
-        +activity_id
-        +request_id
-        +get_interactions()
-    }
-    
-    BaseAgent --> DefaultServer : creates
+    AbstractAgent --> DefaultServer : passed into
     DefaultServer --> DefaultSession : creates
+    DefaultServer --> DefaultHook : creates
     DefaultServer --> DefaultResponseHandler : creates
-    DefaultServer --> BaseAgent : calls assist()
+    DefaultServer --> AbstractAgent : calls assist()
     DefaultResponseHandler --> DefaultHook : uses
     DefaultResponseHandler --> DefaultTextStream : creates
     DefaultTextStream --> DefaultHook : uses
 ```
 
 > [!NOTE]  
-> The above class diagram is a simplified view of the implementation. It omits the `BaseServerAgent` class, because it is just used to avoid a circular dependency between the `BaseAgent` and `DefaultServer` classes (both classes depend on the `BaseServerAgent` class rather than directly on each other). It also omits the `DefaultIdGenerator` class, which is used by the `DefaultHook` class to generate unique IDs for events.
+> The above class diagram omits the `DefaultIdGenerator` class, which is used by the `DefaultHook` class to generate unique IDs for events.
 
 
 ## Operation Flow 
@@ -76,17 +75,16 @@ classDiagram
 ```mermaid
 sequenceDiagram
     Client->>DefaultServer: HTTP Request
-    DefaultServer->>BaseServerAgent: Creates DefaultSession, DefaultResponseHandler, calls BaseServerAgent.assist()
-    BaseServerAgent->>DefaultHook: Generates response, emits events with hook
-    DefaultHook->>BaseServerAgent: Adds events to response queue
-    BaseServerAgent->>DefaultServer: Pulls events from response queue
-    DefaultServer->>Client: Serves events in response queue via SSE
+    DefaultServer->>AstractAgent: Creates DefaultSession, DefaultHook, DefaultResponseHandler, calls AbstractAgent.assist()
+    AstractAgent->>DefaultHook: Generates response, emits events with hook
+    DefaultHook->>DefaultServer: Adds id, metadata, etc. to emitted events and then adds to response queue
+    DefaultServer->>Client: Pulls events from response queue, serves to client via SSE
 ```
 
 #### Event Processing
 ```mermaid
 sequenceDiagram
-    BaseAgent->>DefaultResponseHandler: Creates response event, calls one of DefaultResponseHandler's emit methods
+    AbstractAgent->>DefaultResponseHandler: Creates response event, calls one of DefaultResponseHandler's emit methods
     DefaultResponseHandler->>DefaultHook: Uses DefaultHook to emit event
     DefaultHook->>Queue: Adds event to queue
     Queue->>DefaultServer: Pulls event from queue
@@ -98,12 +96,10 @@ sequenceDiagram
 > [!NOTE]  
 > `BaseServerAgent` and `BaseAgent` are subclasses of the `AbstractAgent` class defined in the interface module. They are not concrete implementations of the `AbstractAgent` class (neither implements the `assist()` method), and thus cannot be used directly.
 
-#### BaseServerAgent
-- Used to avoid a circular dependency between the BaseAgent and DefaultServer classes (both classes depend on this class rather than directly on each other).
-- Has a `Queue` and a `DefaultHook` for event emission.
-
-#### BaseAgent
-- Subclassses `BaseServerAgent` class and adds server capabilities using a `DefaultServer`.
+#### AbstractAgent
+- Abstract class for all agents (defined in the interface module)
+- Core features:
+    - `assist()`: Abstract method for agent execution
 
 #### DefaultResponseHandler
 - Implements `ResponseHandler` protocol

@@ -5,10 +5,13 @@ from flask import (
     Response,
     request
 )
+from queue import Queue
+from sentient_agent_framework.implementation.default_hook import DefaultHook
 from sentient_agent_framework.implementation.default_response_handler import DefaultResponseHandler
 from sentient_agent_framework.implementation.default_session import DefaultSession
-from sentient_agent_framework.implementation.base_server_agent import BaseServerAgent
+from sentient_agent_framework.interface.agent import AbstractAgent
 from sentient_agent_framework.interface.events import DoneEvent
+from sentient_agent_framework.interface.identity import Identity
 from sentient_agent_framework.interface.request import Request
 
 
@@ -19,7 +22,7 @@ class DefaultServer():
 
     def __init__(
             self,
-            agent: BaseServerAgent
+            agent: AbstractAgent
         ):
         self._agent = agent
 
@@ -40,21 +43,30 @@ class DefaultServer():
     def __stream_agent_output(self, request_json):
         """Yield agent output as SSE events."""
 
-        # Request
+        # Validate request
         request: Request = Request.model_validate(request_json)
 
-        # Session
-        session = DefaultSession(request.session) if request.session else None
-        
-        # ResponseHandler
-        response_handler = DefaultResponseHandler(self._agent.identity, self._agent.hook)
+        # Get session from request
+        session = DefaultSession(request.session)
+
+        # Get identity from session
+        identity = Identity(id=session.processor_id, name=self._agent.name)
+
+        # Create response queue
+        response_queue = Queue()
+
+        # Create hook
+        hook = DefaultHook(response_queue)
+
+        # Create response handler
+        response_handler = DefaultResponseHandler(identity, hook)
 
         # Run the agent's assist function in it's own thread
         threading.Thread(target=lambda: asyncio.run(self._agent.assist(session, request.query, response_handler))).start()
         
         # Stream the response handler events
         while True:
-            event = self._agent.response_queue.get()
+            event = response_queue.get()
             yield f"event: {event.event_name}\n"
             yield f"data: {event}\n\n"
             if type(event) == DoneEvent:
