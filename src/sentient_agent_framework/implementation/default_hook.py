@@ -1,5 +1,4 @@
-from asyncio import wait_for
-from queue import Queue
+import asyncio
 from sentient_agent_framework.implementation.default_id_generator import DefaultIdGenerator
 from sentient_agent_framework.interface.events import (
     BaseEvent,
@@ -17,7 +16,7 @@ class DefaultHook:
 
     def __init__(
             self,
-            queue: Queue[Event],
+            queue: asyncio.Queue[Event],
             id_generator: DefaultIdGenerator | None = None,
             timeout_ms: int | None = None
     ):
@@ -37,11 +36,12 @@ class DefaultHook:
         # timeout is not specified.
         if self._timeout_secs is None:
             # Add to queue, wait if necessary.
-            self._queue.put(event)
+            await self._queue.put(event)
+            await asyncio.sleep(0)
             return
         
         # Add element to queue with a timeout.
-        await wait_for(
+        await asyncio.wait_for(
             self._queue.put(event),
             self._timeout_secs
         )
