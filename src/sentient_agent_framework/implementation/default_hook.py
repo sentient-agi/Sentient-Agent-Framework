@@ -37,7 +37,6 @@ class DefaultHook:
         if self._timeout_secs is None:
             # Add to queue, wait if necessary.
             await self._queue.put(event)
-            await asyncio.sleep(0)
             return
         
         # Add element to queue with a timeout.
