@@ -58,6 +58,9 @@ The `AbstractAgent` class is lightweight and extensible. To use it, simply subcl
 #### DefaultServer
 The `DefaultServer` class is designed to be used with the `AbstractAgent` class. A concrete implementation of the `AbstractAgent` class is passed into the `DefaultServer` constructor. The `DefaultServer` provides SSE server with `/assist` endpoint and automatically streams events emitted in the `assist()` method to the client.
 
+> [!NOTE]  
+> The snippet below comes from the [Sentient Agent Framework Examples](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples) repository.
+
 #### Example
 ```python
 import logging
@@ -154,8 +157,7 @@ if __name__ == "__main__":
     # Run the server
     server.run()
 ```
-> [!NOTE]  
-> The above examples comes from the [Sentient Agent Framework Examples](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples) repository.
+
 
 ## Emitting events
 Whether using the `AbstractAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
