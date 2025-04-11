@@ -3,10 +3,14 @@ from sentient_agent_framework.interface.events import TextChunkEvent
 from sentient_agent_framework.interface.exceptions import TextStreamClosedError
 from sentient_agent_framework.interface.hook import Hook
 from sentient_agent_framework.interface.identity import Identity
-from sentient_agent_framework.interface.stream_event_emitter import StreamEventEmitter
+from sentient_agent_framework.interface.response_handler import StreamEventEmitter
 
 
 class DefaultTextStream(StreamEventEmitter[str]):
+    """
+    Default implementation of the TextStream protocol.
+    """
+
     def __init__(
         self,
         event_source: Identity,
@@ -25,7 +29,8 @@ class DefaultTextStream(StreamEventEmitter[str]):
         self, 
         chunk: str
     ) -> DefaultTextStream:
-        """Send a chunk of text to this stream."""
+        """Send a chunk of text to stream."""
+
         if self._is_complete:
             raise TextStreamClosedError(
                 f"Cannot emit chunk to closed stream {self._stream_id}."
@@ -42,7 +47,8 @@ class DefaultTextStream(StreamEventEmitter[str]):
 
 
     async def complete(self) -> None:
-        """Mark this stream as complete."""
+        """Mark stream as complete."""
+
         event = TextChunkEvent(
             source=self._event_source.id,
             event_name=self._event_name,
@@ -56,11 +62,13 @@ class DefaultTextStream(StreamEventEmitter[str]):
 
     @property
     def id(self) -> str:
-        """Get the stream ID."""
+        """Get stream ID."""
+
         return self._stream_id
 
 
     @property
     def is_complete(self) -> bool:
-        """Check if the stream is complete."""
+        """Check if stream is complete."""
+        
         return self._is_complete

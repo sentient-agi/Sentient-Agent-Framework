@@ -18,7 +18,7 @@ from sentient_agent_framework.interface.events import (
 )
 from sentient_agent_framework.interface.hook import Hook
 from sentient_agent_framework.interface.identity import Identity
-from sentient_agent_framework.interface.stream_event_emitter import StreamEventEmitter
+from sentient_agent_framework.interface.response_handler import StreamEventEmitter
 from sentient_agent_framework.implementation.default_text_stream import DefaultTextStream
 from typing import (
     Any,
@@ -30,6 +30,10 @@ from typing import (
 
 
 class DefaultResponseHandler:
+    """
+    Default implementation of the ResponseHandler protocol.
+    """
+
     def __init__(
         self,
         source: Identity,
@@ -45,6 +49,7 @@ class DefaultResponseHandler:
     @staticmethod
     def __verify_response_stream_is_open(func: Callable):
         """Check if the response stream is open."""
+
         is_async_def = inspect.iscoroutinefunction(func)
 
         @wraps(func)
@@ -77,7 +82,8 @@ class DefaultResponseHandler:
         event_name: str,
         response: Union[Mapping[Any, Any] | str]
     ) -> None:
-        """Syncronus function to Send a single atomic event as complete response for request. """
+        """Syncronus function to emit a single atomic event as a complete response."""
+
         event: TextBlockEvent | DocumentEvent | None = None
         match response:
             case str():
@@ -107,7 +113,8 @@ class DefaultResponseHandler:
         self, 
         chunk: StreamEvent
     ) -> None:
-        """Send a chunk of text to a stream."""
+        """Emit a chunk of text to a stream."""
+
         await self.__emit_event(chunk)
 
     
@@ -117,7 +124,8 @@ class DefaultResponseHandler:
         event_name: str,
         data: Mapping[Any, Any]
     ) -> None:
-        """Send a single atomic JSON response."""
+        """Emit a single atomic JSON response."""
+
         try:
             json.dumps(data)
         except TypeError as e:
@@ -138,7 +146,8 @@ class DefaultResponseHandler:
         event_name: str, 
         content: str
     ) -> None:
-        """Send a single atomic text block response."""
+        """Emit a single atomic text block response."""
+
         event = TextBlockEvent(
             source=self._source.id,
             event_name=event_name,
@@ -153,6 +162,7 @@ class DefaultResponseHandler:
         event_name: str
     ) -> DefaultTextStream:
         """Create and return a new TextStream object."""
+
         stream_id = self._cuid_generator.generate()
         stream = DefaultTextStream(self._source, event_name, stream_id, self._hook)
         self._streams[stream_id] = stream
@@ -166,7 +176,8 @@ class DefaultResponseHandler:
         error_code: int = DEFAULT_ERROR_CODE,
         details: Optional[Mapping[str, Any]] = None
     ) -> None:
-        """Send an error event."""
+        """Emit an error event."""
+
         error_content = ErrorContent(
             error_message=error_message,
             error_code=error_code,
@@ -182,12 +193,13 @@ class DefaultResponseHandler:
 
     @property
     def is_complete(self) -> bool:
-        """Return True if the response is complete."""
+        """Check if the response is complete."""
+
         return self._is_complete
 
 
     async def complete(self) -> None:
-        """Mark all streams as complete and the response as finished."""
+        """Mark all streams as complete and the response as complete."""
         # Nop if already complete.
         if self.is_complete:
             return
@@ -201,5 +213,6 @@ class DefaultResponseHandler:
 
 
     async def __emit_event(self, event) -> None:
-        """Internal method to emit events."""
+        """Internal method to emit events using hook."""
+
         await self._hook.emit(event)
