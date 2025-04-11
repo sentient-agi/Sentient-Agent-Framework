@@ -1,4 +1,8 @@
 ## Architecture
+
+> [!NOTE]  
+> The class diagram below omits the `DefaultIdGenerator` class, which is used by the `DefaultHook` class to generate unique IDs for events.
+
 ```mermaid
 classDiagram
     class AbstractAgent {
@@ -67,9 +71,6 @@ classDiagram
     DefaultTextStream --> DefaultHook : uses
 ```
 
-> [!NOTE]  
-> The above class diagram omits the `DefaultIdGenerator` class, which is used by the `DefaultHook` class to generate unique IDs for events.
-
 
 ## Operation Flow 
 #### Request Handling
@@ -94,9 +95,6 @@ sequenceDiagram
 
 
 ## Key Components
-> [!NOTE]  
-> `BaseServerAgent` and `BaseAgent` are subclasses of the `AbstractAgent` class defined in the interface module. They are not concrete implementations of the `AbstractAgent` class (neither implements the `assist()` method), and thus cannot be used directly.
-
 #### AbstractAgent
 - Abstract class for all agents (defined in the interface module)
 - Core features:

@@ -58,6 +58,9 @@ The `AbstractAgent` class is lightweight and extensible. To use it, simply subcl
 #### DefaultServer
 The `DefaultServer` class is designed to be used with the `AbstractAgent` class. A concrete implementation of the `AbstractAgent` class is passed into the `DefaultServer` constructor. The `DefaultServer` provides SSE server with `/assist` endpoint and automatically streams events emitted in the `assist()` method to the client.
 
+> [!NOTE]  
+> The snippet below comes from the [Sentient Agent Framework Examples](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples) repository.
+
 #### Example
 ```python
 import logging
@@ -68,11 +71,10 @@ from src.search_agent.providers.search_provider import SearchProvider
 from sentient_agent_framework import (
     AbstractAgent,
     DefaultServer,
-    Identity,
     Session,
     Query,
     ResponseHandler)
-from typing import Iterator
+from typing import AsyncIterator
 
 
 load_dotenv()
@@ -83,9 +85,9 @@ logger.setLevel(logging.INFO)
 class SearchAgent(AbstractAgent):
     def __init__(
             self,
-            identity: Identity
+            name: str
     ):
-        super().__init__(identity)
+        super().__init__(name)
 
         model_api_key = os.getenv("MODEL_API_KEY")
         if not model_api_key:
@@ -106,21 +108,11 @@ class SearchAgent(AbstractAgent):
             response_handler: ResponseHandler
     ):
         """Search the internet for information."""
-        # Rephrase query for better search results
-        await response_handler.emit_text_block(
-            "PLAN", "Rephrasing user query..."
-        )
-        rephrased_query = self.__rephrase_query(query)
-        # Use response handler to emit text blocks to the client
-        await response_handler.emit_text_block(
-            "REPHRASE", f"Rephrased query: {rephrased_query}"
-        )
-
         # Search for information
         await response_handler.emit_text_block(
             "SEARCH", "Searching internet for results..."
         )
-        search_results = self._search_provider.search(rephrased_query)
+        search_results = await self._search_provider.search(query.prompt)
         if len(search_results["results"]) > 0:
             # Use response handler to emit JSON to the client
             await response_handler.emit_json(
@@ -138,45 +130,34 @@ class SearchAgent(AbstractAgent):
         final_response_stream = response_handler.create_text_stream(
             "FINAL_RESPONSE"
             )
-        for chunk in self.__process_search_results(search_results["results"]):
+        async for chunk in self.__process_search_results(search_results["results"]):
             # Use the text stream to emit chunks of the final response to the client
             await final_response_stream.emit_chunk(chunk)
         # Mark the text stream as complete
         await final_response_stream.complete()
         # Mark the response as complete
         await response_handler.complete()
-
-
-    def __rephrase_query(
-            self,
-            query: str
-    ) -> str:
-        """Rephrase the query for better search results."""
-        rephrase_query = f"Rephrase the following query for better search results: {query}"
-        rephrase_query_response = self._model_provider.query(rephrase_query)
-        return rephrase_query_response
     
 
-    def __process_search_results(
+    async def __process_search_results(
             self, 
             search_results: dict
-    ) -> Iterator[str]:
+    ) -> AsyncIterator[str]:
         """Process the search results."""
         process_search_results_query = f"Summarise the following search results: {search_results}"
-        for chunk in self._model_provider.query_stream(process_search_results_query):
+        async for chunk in self._model_provider.query_stream(process_search_results_query):
             yield chunk
 
 
 if __name__ == "__main__":
     # Create an instance of a SearchAgent
-    agent = SearchAgent(identity=Identity(id="Search-Demo", name="Search Demo"))
+    agent = SearchAgent(name="Search Agent")
     # Create a server to handle requests to the agent
     server = DefaultServer(agent)
     # Run the server
     server.run()
 ```
-> [!NOTE]  
-> The above examples comes from the [Sentient Agent Framework Examples](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples) repository.
+
 
 ## Emitting events
 Whether using the `AbstractAgent` or the `DefaultResponseHandler`, a `ResponseHandler` is created for every agent query and is used to emit events to the client. 
