@@ -69,7 +69,7 @@ class DefaultServer():
         while True:
             event = await response_queue.get()
             yield f"event: {event.event_name}\n"
-            yield f"data: {event}\n\n"
+            yield f"data: {event.model_dump_json()}\n\n"
             response_queue.task_done()
             if type(event) == DoneEvent:
                 break
