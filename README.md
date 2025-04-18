@@ -22,15 +22,15 @@
     </a>
 </p>
 
-<!-- Github Repo Info -->
+<!-- PyPI Package Info -->
 <p align="center">
     <!-- Release -->
-    <a href="https://github.com/sentient-agi/Sentient-Agent-Framework/releases">
-        <img alt="GitHub release" src="https://img.shields.io/badge/Release-Beta-yellow">
+    <a href="https://pypi.org/project/sentient-agent-framework/">
+        <img src="https://img.shields.io/pypi/v/sentient-agent-framework">
     </a>
     <!-- License -->
-    <a href="https://github.com/sentient-agi/Sentient-Agent-Framework/tree/main?tab=Apache-2.0-1-ov-file">
-        <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-green">
+    <a href="https://pypi.org/project/sentient-agent-framework/">
+        <img alt="License" src="https://img.shields.io/pypi/dm/sentient-agent-framework">
     </a>
 </p>
 
@@ -42,7 +42,7 @@
 
 In addition to supporting OpenAI API compatible agents, Sentient Chat supports a custom, open source event system for agent responses. These events can be rendered in Sentient Chat to provide a richer user experience. This particularly useful for streaming responses from an AI agent, when you might want to show the agent's work while the response is being generated, rather than having the user wait for the final response. **This python package provides an agent framework that can be used to build agents that serve Sentient Chat events.**
 
-Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples).
+Examples of agents that use this framework/package can be found [here](https://github.com/sentient-agi/Sentient-Agent-Framework-Examples). A client for testing agents built with this framework is available [here](https://github.com/chris-aubin-sentient/Sentient-Agent-Client).
 
 ## Installation
 ```bash
