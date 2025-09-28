@@ -19,4 +19,4 @@ What you expected to happen.
 - Commit/Release:
 
 **Additional context**
-Add any other context/screenshots here.
+Add any other context/screenshots here..
